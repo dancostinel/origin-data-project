@@ -33,15 +33,12 @@ class EmployeeProject
         return $this->id;
     }
 
-    /**
-     * @return Collection<int, Employee>
-     */
     public function getEmployee(): Collection
     {
         return $this->employee;
     }
 
-    public function addEmployee(Employee $employee): static
+    public function addEmployee(Employee $employee): self
     {
         if (!$this->employee->contains($employee)) {
             $this->employee->add($employee);
@@ -50,22 +47,19 @@ class EmployeeProject
         return $this;
     }
 
-    public function removeEmployee(Employee $employee): static
+    public function removeEmployee(Employee $employee): self
     {
         $this->employee->removeElement($employee);
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Project>
-     */
     public function getProject(): Collection
     {
         return $this->project;
     }
 
-    public function addProject(Project $project): static
+    public function addProject(Project $project): self
     {
         if (!$this->project->contains($project)) {
             $this->project->add($project);
@@ -74,7 +68,7 @@ class EmployeeProject
         return $this;
     }
 
-    public function removeProject(Project $project): static
+    public function removeProject(Project $project): self
     {
         $this->project->removeElement($project);
 

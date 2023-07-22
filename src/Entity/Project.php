@@ -40,7 +40,7 @@ class Project
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(string $name): self
     {
         $this->name = $name;
 
@@ -52,22 +52,19 @@ class Project
         return $this->company;
     }
 
-    public function setCompany(?Company $company): static
+    public function setCompany(?Company $company): self
     {
         $this->company = $company;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, EmployeeProject>
-     */
     public function getEmployeeProjects(): Collection
     {
         return $this->employeeProjects;
     }
 
-    public function addEmployeeProject(EmployeeProject $employeeProject): static
+    public function addEmployeeProject(EmployeeProject $employeeProject): self
     {
         if (!$this->employeeProjects->contains($employeeProject)) {
             $this->employeeProjects->add($employeeProject);
@@ -77,7 +74,7 @@ class Project
         return $this;
     }
 
-    public function removeEmployeeProject(EmployeeProject $employeeProject): static
+    public function removeEmployeeProject(EmployeeProject $employeeProject): self
     {
         if ($this->employeeProjects->removeElement($employeeProject)) {
             $employeeProject->removeProject($this);
