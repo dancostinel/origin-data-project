@@ -8,6 +8,8 @@ services:
         volumes:
             - ./../:/var/www/origin-data-app/
         ports: ['8080:80']
+        networks:
+            - origin-data-network
     origin-data-php-service:
         build:
             context: .
@@ -16,6 +18,8 @@ services:
         ports: ['9006:9000']
         volumes:
             - ./../:/var/www/origin-data-app/
+        networks:
+            - origin-data-network
     origin-data-mysql-service:
         image: mysql
         container_name: origin-data-mysql-container
@@ -25,6 +29,8 @@ services:
         ports: ['3311:3306']
         volumes:
             - ./mysql/:/var/lib/mysql
+        networks:
+            - origin-data-network
     origin-data-phpmyadmin-service:
         image: phpmyadmin/phpmyadmin:latest
         container_name: origin-data-phpmyadmin-container
@@ -33,3 +39,7 @@ services:
             PMA_USER: root
             PMA_PASSWORD: root
         ports: ['8086:80']
+        networks:
+            - origin-data-network
+networks:
+    origin-data-network:
