@@ -1,0 +1,35 @@
+version: '3'
+services:
+    origin-data-nginx-service:
+        build:
+            context: .
+            dockerfile: ./nginx/Dockerfile
+        container_name: origin-data-nginx-container
+        volumes:
+            - ./../:/var/www/origin-data-app/
+        ports: ['8080:80']
+    origin-data-php-service:
+        build:
+            context: .
+            dockerfile: ./php/Dockerfile
+        container_name: origin-data-php-container
+        ports: ['9006:9000']
+        volumes:
+            - ./../:/var/www/origin-data-app/
+    origin-data-mysql-service:
+        image: mysql
+        container_name: origin-data-mysql-container
+        command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci', '--default-authentication-plugin=mysql_native_password']
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+        ports: ['3311:3306']
+        volumes:
+            - ./mysql/:/var/lib/mysql
+    origin-data-phpmyadmin-service:
+        image: phpmyadmin/phpmyadmin:latest
+        container_name: origin-data-phpmyadmin-container
+        environment:
+            PMA_HOST: origin-data-mysql-service
+            PMA_USER: root
+            PMA_PASSWORD: root
+        ports: ['8086:80']
