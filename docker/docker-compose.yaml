@@ -1,4 +1,6 @@
 version: '3'
+networks:
+    origin-data-network:
 services:
     origin-data-nginx-service:
         build:
@@ -27,6 +29,7 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: root
         ports: ['3311:3306']
+        restart: on-failure
         volumes:
             - ./mysql/:/var/lib/mysql
         networks:
@@ -39,7 +42,9 @@ services:
             PMA_USER: root
             PMA_PASSWORD: root
         ports: ['8086:80']
+        depends_on:
+            - origin-data-mysql-service
+        volumes:
+            - ./phpmyadmin/:/var/www/origin-data-app/docker/phpmyadmin/
         networks:
             - origin-data-network
-networks:
-    origin-data-network:
