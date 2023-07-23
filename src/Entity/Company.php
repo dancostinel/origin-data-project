@@ -6,6 +6,7 @@ use App\Repository\CompanyRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: CompanyRepository::class)]
 #[ORM\Table(name: 'companies')]
@@ -19,9 +20,11 @@ class Company
     #[ORM\Column(length: 100)]
     private ?string $name = null;
 
+    #[Ignore]
     #[ORM\OneToMany(mappedBy: 'company', targetEntity: Employee::class)]
     private Collection $employees;
 
+    #[Ignore]
     #[ORM\OneToMany(mappedBy: 'company', targetEntity: Project::class)]
     private Collection $projects;
 

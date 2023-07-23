@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Company;
 use App\Entity\Employee;
+use App\Entity\EmployeeProject;
+use App\Entity\Project;
 use App\Repository\EmployeeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +28,7 @@ class EmployeeController extends AbstractController
     {
         $name = $request->get('name', '');
         $companyId = $request->get('company_id', 0);
+        $projectId = $request->get('project_id', 0);
         if (empty($name) || empty($companyId)) {
             throw new \InvalidArgumentException('Invalid request data', Response::HTTP_BAD_REQUEST);
         }
@@ -34,10 +37,17 @@ class EmployeeController extends AbstractController
         if (!$company) {
             throw new NotFoundHttpException('Company '.$companyId. ' was not found');
         }
+        $project = $entityManager->find(Project::class, $projectId);
+        if (!$project) {
+            throw new NotFoundHttpException('Project '.$projectId. ' was not found');
+        }
         $employee = (new Employee())
             ->setName($name)
             ->setCompany($company);
+        $employeeProject = (new EmployeeProject())->addProject($project)->addEmployee($employee);
+        $employee->addEmployeeProject($employeeProject);
 
+        $entityManager->persist($employeeProject);
         $entityManager->persist($employee);
         $entityManager->flush();
 
