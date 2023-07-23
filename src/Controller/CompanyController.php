@@ -42,32 +42,30 @@ class CompanyController extends AbstractController
         return $this->json($company);
     }
 
-    #[Route('/{id}/edit', name: 'app_company_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}', name: 'app_company_edit', methods: ['PATCH'])]
     public function edit(Request $request, Company $company, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(CompanyType::class, $company);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_company_index', [], Response::HTTP_SEE_OTHER);
+        $name = $request->get('name', '');
+        if (empty($name)) {
+            throw new \InvalidArgumentException('Invalid request data', Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->render('company/edit.html.twig', [
-            'company' => $company,
-            'form' => $form,
-        ]);
+        $company->setName($name);
+        $entityManager->flush();
+
+        $responseData = ['message' => 'Company '.$name.' was edited successfully'];
+
+        return $this->json($responseData);
     }
 
-    #[Route('/{id}', name: 'app_company_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_company_delete', methods: ['DELETE'])]
     public function delete(Request $request, Company $company, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$company->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($company);
-            $entityManager->flush();
-        }
+        $entityManager->remove($company);
+        $entityManager->flush();
 
-        return $this->redirectToRoute('app_company_index', [], Response::HTTP_SEE_OTHER);
+        $responseData = ['message' => 'Company '.$company->getId().' was removed successfully'];
+
+        return $this->json($responseData);
     }
 }
