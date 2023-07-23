@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/companies')]
 class CompanyController extends AbstractController
@@ -19,6 +20,7 @@ class CompanyController extends AbstractController
         return $this->json($companyRepository->findAll());
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/', name: 'app_company_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -41,6 +43,7 @@ class CompanyController extends AbstractController
         return $this->json($company);
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/{id}', name: 'app_company_edit', methods: ['PATCH'])]
     public function edit(Request $request, Company $company, EntityManagerInterface $entityManager): Response
     {
@@ -57,6 +60,7 @@ class CompanyController extends AbstractController
         return $this->json($responseData);
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/{id}', name: 'app_company_delete', methods: ['DELETE'])]
     public function delete(Company $company, EntityManagerInterface $entityManager): Response
     {

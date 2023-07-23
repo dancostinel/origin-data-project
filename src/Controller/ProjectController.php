@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/projects')]
 class ProjectController extends AbstractController
@@ -23,6 +24,7 @@ class ProjectController extends AbstractController
         return $this->json($projectRepository->findAll());
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/', name: 'app_project_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -61,6 +63,7 @@ class ProjectController extends AbstractController
         return $this->json($project);
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/{id}', name: 'app_project_edit', methods: ['PATCH'])]
     public function edit(Request $request, Project $project, EntityManagerInterface $entityManager): Response
     {
@@ -83,6 +86,7 @@ class ProjectController extends AbstractController
         return $this->json($responseData);
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/{id}', name: 'app_project_delete', methods: ['DELETE'])]
     public function delete(Project $project, EntityManagerInterface $entityManager): Response
     {

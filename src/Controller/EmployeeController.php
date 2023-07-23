@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/employees')]
 class EmployeeController extends AbstractController
@@ -23,6 +24,7 @@ class EmployeeController extends AbstractController
         return $this->json($employeeRepository->findAll());
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/', name: 'app_employee_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -62,6 +64,7 @@ class EmployeeController extends AbstractController
         return $this->json($employee);
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/{id}', name: 'app_employee_edit', methods: ['PATCH'])]
     public function edit(Request $request, Employee $employee, EntityManagerInterface $entityManager): Response
     {
@@ -84,6 +87,7 @@ class EmployeeController extends AbstractController
         return $this->json($responseData);
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY', message: 'You are not allowed to use this api')]
     #[Route('/{id}', name: 'app_employee_delete', methods: ['DELETE'])]
     public function delete(Employee $employee, EntityManagerInterface $entityManager): Response
     {
