@@ -11,43 +11,35 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/company')]
+#[Route('/companies')]
 class CompanyController extends AbstractController
 {
     #[Route('/', name: 'app_company_index', methods: ['GET'])]
     public function index(CompanyRepository $companyRepository): Response
     {
-        return $this->render('company/index.html.twig', [
-            'companies' => $companyRepository->findAll(),
-        ]);
+        return $this->json($companyRepository->findAll());
     }
 
-    #[Route('/new', name: 'app_company_new', methods: ['GET', 'POST'])]
+    #[Route('/', name: 'app_company_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $company = new Company();
-        $form = $this->createForm(CompanyType::class, $company);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($company);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_company_index', [], Response::HTTP_SEE_OTHER);
+        $name = $request->get('name', '');
+        if (empty($name)) {
+            throw new \InvalidArgumentException('Invalid request data', Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->render('company/new.html.twig', [
-            'company' => $company,
-            'form' => $form,
-        ]);
+        $company = (new Company())->setName($name);
+        $entityManager->persist($company);
+        $entityManager->flush();
+        $responseData = ['message' => 'Company '.$name.' was saved successfully'];
+
+        return $this->json($responseData, Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'app_company_show', methods: ['GET'])]
     public function show(Company $company): Response
     {
-        return $this->render('company/show.html.twig', [
-            'company' => $company,
-        ]);
+        return $this->json($company);
     }
 
     #[Route('/{id}/edit', name: 'app_company_edit', methods: ['GET', 'POST'])]
