@@ -2,80 +2,85 @@
 
 namespace App\Controller;
 
+use App\Entity\Company;
 use App\Entity\Employee;
-use App\Form\EmployeeType;
 use App\Repository\EmployeeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/employee')]
+#[Route('/employees')]
 class EmployeeController extends AbstractController
 {
     #[Route('/', name: 'app_employee_index', methods: ['GET'])]
     public function index(EmployeeRepository $employeeRepository): Response
     {
-        return $this->render('employee/index.html.twig', [
-            'employees' => $employeeRepository->findAll(),
-        ]);
+        return $this->json($employeeRepository->findAll());
     }
 
-    #[Route('/new', name: 'app_employee_new', methods: ['GET', 'POST'])]
+    #[Route('/', name: 'app_employee_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $employee = new Employee();
-        $form = $this->createForm(EmployeeType::class, $employee);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($employee);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_employee_index', [], Response::HTTP_SEE_OTHER);
+        $name = $request->get('name', '');
+        $companyId = $request->get('company_id', 0);
+        if (empty($name) || empty($companyId)) {
+            throw new \InvalidArgumentException('Invalid request data', Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->render('employee/new.html.twig', [
-            'employee' => $employee,
-            'form' => $form,
-        ]);
+        $company = $entityManager->find(Company::class, $companyId);
+        if (!$company) {
+            throw new NotFoundHttpException('Company '.$companyId. ' was not found');
+        }
+        $employee = (new Employee())
+            ->setName($name)
+            ->setCompany($company);
+
+        $entityManager->persist($employee);
+        $entityManager->flush();
+
+        $responseData = ['message' => 'Employee '.$name.' was saved successfully'];
+
+        return $this->json($responseData, Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'app_employee_show', methods: ['GET'])]
     public function show(Employee $employee): Response
     {
-        return $this->render('employee/show.html.twig', [
-            'employee' => $employee,
-        ]);
+        return $this->json($employee);
     }
 
-    #[Route('/{id}/edit', name: 'app_employee_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}', name: 'app_employee_edit', methods: ['PATCH'])]
     public function edit(Request $request, Employee $employee, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(EmployeeType::class, $employee);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_employee_index', [], Response::HTTP_SEE_OTHER);
+        $name = $request->get('name', $employee->getName());
+        $companyId = $request->get('company_id', 0);
+        if (empty($name) || empty($companyId)) {
+            throw new \InvalidArgumentException('Invalid request data', Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->render('employee/edit.html.twig', [
-            'employee' => $employee,
-            'form' => $form,
-        ]);
+        $company = $entityManager->find(Company::class, $companyId);
+        if (!$company) {
+            throw new NotFoundHttpException('Company '.$companyId. ' was not found');
+        }
+        $employee
+            ->setName($name)
+            ->setCompany($company);
+        $entityManager->flush();
+        $responseData = ['message' => 'Employee '.$name.' was edited successfully'];
+
+        return $this->json($responseData);
     }
 
-    #[Route('/{id}', name: 'app_employee_delete', methods: ['POST'])]
-    public function delete(Request $request, Employee $employee, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}', name: 'app_employee_delete', methods: ['DELETE'])]
+    public function delete(Employee $employee, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$employee->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($employee);
-            $entityManager->flush();
-        }
+        $entityManager->remove($employee);
+        $responseData = ['message' => 'Employee '.$employee->getId().' was removed successfully'];
+        $entityManager->flush();
 
-        return $this->redirectToRoute('app_employee_index', [], Response::HTTP_SEE_OTHER);
+        return $this->json($responseData);
     }
 }

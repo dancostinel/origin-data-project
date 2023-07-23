@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Company;
-use App\Form\CompanyType;
 use App\Repository\CompanyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,12 +58,11 @@ class CompanyController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_company_delete', methods: ['DELETE'])]
-    public function delete(Request $request, Company $company, EntityManagerInterface $entityManager): Response
+    public function delete(Company $company, EntityManagerInterface $entityManager): Response
     {
         $entityManager->remove($company);
-        $entityManager->flush();
-
         $responseData = ['message' => 'Company '.$company->getId().' was removed successfully'];
+        $entityManager->flush();
 
         return $this->json($responseData);
     }

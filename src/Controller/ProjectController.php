@@ -2,80 +2,85 @@
 
 namespace App\Controller;
 
+use App\Entity\Company;
 use App\Entity\Project;
-use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/project')]
+#[Route('/projects')]
 class ProjectController extends AbstractController
 {
     #[Route('/', name: 'app_project_index', methods: ['GET'])]
     public function index(ProjectRepository $projectRepository): Response
     {
-        return $this->render('project/index.html.twig', [
-            'projects' => $projectRepository->findAll(),
-        ]);
+        return $this->json($projectRepository->findAll());
     }
 
-    #[Route('/new', name: 'app_project_new', methods: ['GET', 'POST'])]
+    #[Route('/', name: 'app_project_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $project = new Project();
-        $form = $this->createForm(ProjectType::class, $project);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($project);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
+        $name = $request->get('name', '');
+        $companyId = $request->get('company_id', 0);
+        if (empty($name) || empty($companyId)) {
+            throw new \InvalidArgumentException('Invalid request data', Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->render('project/new.html.twig', [
-            'project' => $project,
-            'form' => $form,
-        ]);
+        $company = $entityManager->find(Company::class, $companyId);
+        if (!$company) {
+            throw new NotFoundHttpException('Company '.$companyId. ' was not found');
+        }
+        $project = (new Project())
+            ->setName($name)
+            ->setCompany($company);
+
+        $entityManager->persist($project);
+        $entityManager->flush();
+
+        $responseData = ['message' => 'Project '.$name.' was saved successfully'];
+
+        return $this->json($responseData, Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'app_project_show', methods: ['GET'])]
     public function show(Project $project): Response
     {
-        return $this->render('project/show.html.twig', [
-            'project' => $project,
-        ]);
+        return $this->json($project);
     }
 
-    #[Route('/{id}/edit', name: 'app_project_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}', name: 'app_project_edit', methods: ['PATCH'])]
     public function edit(Request $request, Project $project, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(ProjectType::class, $project);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
+        $name = $request->get('name', $project->getName());
+        $companyId = $request->get('company_id', 0);
+        if (empty($name) || empty($companyId)) {
+            throw new \InvalidArgumentException('Invalid request data', Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->render('project/edit.html.twig', [
-            'project' => $project,
-            'form' => $form,
-        ]);
+        $company = $entityManager->find(Company::class, $companyId);
+        if (!$company) {
+            throw new NotFoundHttpException('Company '.$companyId. ' was not found');
+        }
+        $project
+            ->setName($name)
+            ->setCompany($company);
+        $entityManager->flush();
+        $responseData = ['message' => 'Project '.$name.' was edited successfully'];
+
+        return $this->json($responseData);
     }
 
-    #[Route('/{id}', name: 'app_project_delete', methods: ['POST'])]
-    public function delete(Request $request, Project $project, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}', name: 'app_project_delete', methods: ['DELETE'])]
+    public function delete(Project $project, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$project->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($project);
-            $entityManager->flush();
-        }
+        $entityManager->remove($project);
+        $responseData = ['message' => 'Project '.$project->getId().' was removed successfully'];
+        $entityManager->flush();
 
-        return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
+        return $this->json($responseData);
     }
 }

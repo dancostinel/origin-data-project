@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use Doctrine\DBAL\Exception\NotNullConstraintViolationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -24,7 +25,7 @@ class ExceptionListener
 
             return;
         }
-        if ($exception instanceof \InvalidArgumentException) {
+        if ($exception instanceof \InvalidArgumentException || $exception instanceof NotNullConstraintViolationException) {
             $data = ['error' => $exception->getMessage()];
             $response = new JsonResponse($data);
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
