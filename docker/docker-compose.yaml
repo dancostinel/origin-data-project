@@ -22,7 +22,6 @@ services:
             - ./../:/var/www/origin-data-app/
         networks:
             - origin-data-network
-        command: sh -c "composer install"
     origin-data-mysql-service:
         image: mysql
         container_name: origin-data-mysql-container
