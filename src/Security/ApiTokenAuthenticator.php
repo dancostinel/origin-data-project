@@ -34,14 +34,19 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
     {
         $authorizationHeader = $request->headers->get('Authorization');
         $tokenFromRequest = substr($authorizationHeader, 7);
-        $tokenFromDatabase = $this->apiTokenRepo->findOneBy([
+        $token = $this->apiTokenRepo->findOneBy([
             'token' => $tokenFromRequest
         ]);
-        if (!$tokenFromDatabase) {
+        if (!$token || !$token->getUser()) {
             throw new ApiException('You are not authorized to use this api');
         }
+        $now = new \DateTimeImmutable();
+        $tokenExpiresAt = $token->getExpiresAt();
+        if ($tokenExpiresAt < $now) {
+            throw new ApiException('Your api token expired');
+        }
 
-        $userIdentifier = $tokenFromDatabase->getUser()?->getUserIdentifier();
+        $userIdentifier = $token->getUser()?->getUserIdentifier();
         $userBadge = new UserBadge($userIdentifier);
         $passwordCredentials = new PasswordCredentials('123456');
 
