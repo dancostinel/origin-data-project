@@ -32,7 +32,7 @@ class ApiToken
     {
         $this->token = bin2hex(random_bytes(60));
         $this->user = $user;
-        $this->expiresAt = new \DateTimeImmutable('+1 day');
+        $this->expiresAt = (new \DateTimeImmutable())->modify('+5 minutes');
     }
 
     public function getId(): ?int

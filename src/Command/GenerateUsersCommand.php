@@ -32,7 +32,7 @@ class GenerateUsersCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        foreach (range(2, 5) as $userId) {
+        foreach (range(26, 30) as $userId) {
             $user = new User();
             $user
                 ->setIsVerified(true)
