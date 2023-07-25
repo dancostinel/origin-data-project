@@ -14,6 +14,9 @@ services:
             - origin-data-network
     origin-data-php-service:
         build:
+            args:
+                user: dancostinel
+                uid: 1030
             context: .
             dockerfile: ./php/Dockerfile
         container_name: origin-data-php-container
