@@ -17,7 +17,7 @@ RUN useradd -u 3030 dancostinel
 
 WORKDIR /var/www/origin-data-app/
 
-RUN chmod -R 775 /app
-RUN chown -R dancostine:www-data /app
+RUN chmod -R 775 /var/www/origin-data-app/
+RUN chown -R dancostine:www-data /var/www/origin-data-app/
 USER dancostinel
 RUN composer install
