@@ -10,8 +10,14 @@ RUN apt-get update && apt-get install apt-file -y && apt-file update && apt-get 
         mysqli \
         pdo pdo_mysql
 
-RUN addgroup -g ${GID} --system dancostinel
-RUN adduser -G dancostinel --system -D -s /bin/sh -u ${$UID} dancostinel
 RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+RUN useradd -u 3030 dancostinel
+
 WORKDIR /var/www/origin-data-app/
-RUN php composer install
+
+RUN chmod -R 775 /app
+RUN chown -R dancostine:www-data /app
+USER dancostinel
+RUN composer install
