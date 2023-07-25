@@ -15,9 +15,9 @@ COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
 RUN useradd -u 3030 dancostinel
 
+COPY ../../. /var/www/origin-data-app/
 RUN chmod -R 775 /var/www/origin-data-app/
 RUN chown -R dancostinel:www-data /var/www/origin-data-app/
 WORKDIR /var/www/origin-data-app/
-COPY ../../. /var/www/origin-data-app/
 USER dancostinel
 RUN composer install
