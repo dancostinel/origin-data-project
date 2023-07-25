@@ -18,7 +18,7 @@ class ApiToken
     #[ORM\Column(length: 255)]
     private ?string $token = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?\DateTimeInterface $expiresAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'apiTokens')]
