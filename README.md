@@ -1,6 +1,8 @@
 # origin-data-project
 
-$ docker exec -it origin-data-php-container bash
+`# docker compose -f docker/docker-compose.yaml up -d`
+
+`# docker exec -it origin-data-php-container bash`
 
 `# php composer install`
 
